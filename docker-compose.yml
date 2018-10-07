@@ -1,9 +1,11 @@
-version: '3'
+version: "3"
 services:
   backend:
-      build: ./python-server
-      volumes:
-        - ./python-server/:/python-server
-        - ./react-display/:/react-display
-      ports:
-        - 8080:8080
+    build: ./python-server
+    volumes:
+      - ./python-server/:/usr/src/server/python-server
+      - ./react-display/:/usr/src/server/react-display
+    ports:
+      - 8080:8080
+    stdin_open: true
+    tty: true
