@@ -9,7 +9,7 @@ class App extends Component {
     this.state = {
       data: []
     };
-    this.ws = new WebSocket("ws://0.0.0.0:5000/update");
+    this.ws = new WebSocket("ws://" + document.domain + ":5000/update");
     this.ws.onmessage = event => {
       this.setState({ data: JSON.parse(event.data) });
     };
