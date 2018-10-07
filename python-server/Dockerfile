@@ -5,6 +5,6 @@ RUN apt-get update
 RUN apt-get install sense-hat
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 RUN python3 get-pip.py
-RUN sudo -H pip3 install -U pipenv
-RUN pipenv install
+RUN pip3 install flask
+RUN pip3 install websockets
 CMD ['pipenv run python3','app.py']
