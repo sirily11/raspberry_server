@@ -19,7 +19,7 @@ async def update_handler():
     sense = SenseHat()
     sense.clear()
     while True:
-        acceleration = round(sense.get_accelerometer_raw(),3)
+        acceleration = sense.get_accelerometer_raw()
         pressure = round(sense.get_pressure(),3)
         temp = round(sense.get_temperature(),3)
         humidity = round(sense.get_humidity(),3)
