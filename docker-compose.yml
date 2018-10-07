@@ -1,0 +1,9 @@
+version: '3'
+services:
+  backend:
+      build: ./python-server
+      volumes:
+        - ./python-server/:/python-server
+        - ./react-display/:/react-display
+      ports:
+        - 8080:8080
