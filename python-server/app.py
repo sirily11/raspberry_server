@@ -5,8 +5,8 @@ import time
 from sense_hat import SenseHat
 
 app = Quart(__name__,
-            template_folder="../react-display/build",
-            static_folder="../react-display/build/static")
+            template_folder="../react-display/deploy",
+            static_folder="../react-display/deploy/static")
 
 
 @app.route('/')
