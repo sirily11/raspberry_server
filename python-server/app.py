@@ -34,8 +34,8 @@ async def update_handler():
             "data": humidity
         }]
         await websocket.send(json.dumps(data))
-        time.sleep(3)
+        time.sleep(1)
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",debug=True)
+    app.run(host="0.0.0.0", debug=True)
