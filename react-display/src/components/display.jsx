@@ -5,18 +5,18 @@ export default class Display extends Component {
     //[{name:data}]
     return this.props.data.map(item => {
       return (
-        <li key={item.name} className="mdl-list__item">
-          <h5>{item.name}:</h5>
-          <h5 className="mdl-list__item-primary-content">{item.data}</h5>
-        </li>
+        <div key={item.name} className="col-sm-6">
+          <div className="card">
+            <div className="card-body">
+              <h3 className="card-title">{item.name}</h3>
+              <h3 className="card-title">{item.data}</h3>
+            </div>
+          </div>
+        </div>
       );
     });
   }
   render() {
-    return (
-      <div>
-        <ul className="demo-list-item mdl-list">{this.renderList()}</ul>
-      </div>
-    );
+    return <div className="row">{this.renderList()}</div>;
   }
 }
