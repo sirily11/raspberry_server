@@ -19,14 +19,14 @@ async def update_handler():
     sense = SenseHat()
     sense.clear()
     while True:
-        acceleration = sense.get_accelerometer_raw()
-        pressure = sense.get_pressure()
-        temp = sense.get_temperature()
-        humidity = sense.get_humidity()
+        acceleration = round(sense.get_accelerometer_raw(),3)
+        pressure = round(sense.get_pressure(),3)
+        temp = round(sense.get_temperature(),3)
+        humidity = round(sense.get_humidity(),3)
 
-        x = acceleration['x']
-        y = acceleration['y']
-        z = acceleration['z']
+        x = round(acceleration['x'],3)
+        y = round(acceleration['y'],3)
+        z = round(acceleration['z'],3)
 
         data = [{
             "name": "temperture",
@@ -39,7 +39,7 @@ async def update_handler():
             "data": humidity
         }, {
             "name": "Acceleration",
-            "data": "X:{},Y:{},Z:{}".format(x, y, z)
+            "data": "X:{}\nY:{}\nZ:{}".format(x, y, z)
         }]
         await websocket.send(json.dumps(data))
         time.sleep(1)
