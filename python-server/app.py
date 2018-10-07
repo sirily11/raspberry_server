@@ -19,9 +19,14 @@ async def update_handler():
     sense = SenseHat()
     sense.clear()
     while True:
+        acceleration = sense.get_accelerometer_raw()
         pressure = sense.get_pressure()
         temp = sense.get_temperature()
         humidity = sense.get_humidity()
+
+        x = acceleration['x']
+        y = acceleration['y']
+        z = acceleration['z']
 
         data = [{
             "name": "temperture",
@@ -32,6 +37,9 @@ async def update_handler():
         }, {
             "name": "humidity",
             "data": humidity
+        }, {
+            "name": "Acceleration",
+            "data": "X:{},Y:{},Z:{}".format(x, y, z)
         }]
         await websocket.send(json.dumps(data))
         time.sleep(1)
