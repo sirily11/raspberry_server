@@ -11,7 +11,7 @@ export default class Input extends Component {
   enterHandler(e) {
     if (e.key === "Enter") {
       let userInput = e.target.value;
-      //this.props.updateList(userInput);
+      this.props.updateText(userInput);
       e.target.value = "";
     }
   }
