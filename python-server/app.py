@@ -15,6 +15,16 @@ def home():
     return render_template('index.html')
 
 
+@app.websocket('/showText')
+async def show_handler():
+    sense = SenseHat()
+    sense.show_message("Connected")
+    while True:
+        text = await websocket.receive()
+        print("Text")
+        sense.show_message(text)
+
+
 @app.websocket('/update')
 async def update_handler():
     sense = SenseHat()
