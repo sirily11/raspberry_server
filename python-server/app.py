@@ -3,6 +3,7 @@ from quart import websocket
 import json
 import time
 from sense_hat import SenseHat
+from math import sqrt
 
 app = Quart(__name__,
             template_folder="../react-display/deploy",
@@ -20,13 +21,14 @@ async def update_handler():
     sense.clear()
     while True:
         acceleration = sense.get_accelerometer_raw()
-        pressure = round(sense.get_pressure(),3)
-        temp = round(sense.get_temperature(),3)
-        humidity = round(sense.get_humidity(),3)
+        pressure = round(sense.get_pressure(), 3)
+        temp = round(sense.get_temperature(), 3)
+        humidity = round(sense.get_humidity(), 3)
 
-        x = round(acceleration['x'],3)
-        y = round(acceleration['y'],3)
-        z = round(acceleration['z'],3)
+        x = round(acceleration['x'], 3)
+        y = round(acceleration['y'], 3)
+        z = round(acceleration['z'], 3)
+        speed = (sqrt(x**2+y**2))/2
 
         data = [{
             "name": "temperture",
@@ -40,6 +42,9 @@ async def update_handler():
         }, {
             "name": "Acceleration",
             "data": "X:{}\nY:{}\nZ:{}".format(x, y, z)
+        }, {
+            "name": "Speed",
+            "data": round(speed, 3)
         }]
         await websocket.send(json.dumps(data))
         time.sleep(1)
