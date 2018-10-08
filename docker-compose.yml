@@ -6,6 +6,6 @@ services:
       - ./python-server/:/usr/src/server/python-server
       - ./react-display/:/usr/src/server/react-display
     ports:
-      - 8080:8080
+      - 5000:5000
     stdin_open: true
     tty: true
