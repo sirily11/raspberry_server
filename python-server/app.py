@@ -18,10 +18,9 @@ def home():
 @app.websocket('/showText')
 async def show_handler():
     sense = SenseHat()
-    sense.show_message("Connected")
     while True:
         text = await websocket.receive()
-        print("Text")
+        print(text)
         sense.show_message(text)
 
 
