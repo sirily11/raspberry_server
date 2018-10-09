@@ -1,5 +1,10 @@
 version: "3"
 services:
+  react:
+    build: ./react-display
+    volumes:
+      - ./react-display/:/usr/src/server/react-display
+
   backend:
     build: ./python-server
     volumes:
@@ -10,3 +15,4 @@ services:
     stdin_open: true
     tty: true
     privileged: true
+  

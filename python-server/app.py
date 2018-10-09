@@ -6,8 +6,8 @@ from sense_hat import SenseHat
 from math import sqrt
 
 app = Quart(__name__,
-            template_folder="../react-display/deploy",
-            static_folder="../react-display/deploy/static")
+            template_folder="../react-display/build",
+            static_folder="../react-display/build/static")
 
 
 @app.route('/')
