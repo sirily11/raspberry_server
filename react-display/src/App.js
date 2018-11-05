@@ -14,7 +14,7 @@ class App extends Component {
     super();
     this.state = {
       data: [],
-      connected: false,
+      connected: true,
       videosrc: "",
       errMsg: "",
       hit: false,
@@ -48,11 +48,11 @@ class App extends Component {
     // setInterval(this.getUpdate.bind(this), 1000);
 
     this.video.onerror = e => {
-        let errMsg = this.state.errMsg;
-        errMsg += "Cannot connect to the sensor data server\n.";
-        this.setState({
-            errMsg: errMsg
-        });
+      let errMsg = this.state.errMsg;
+      errMsg += "Cannot connect to the sensor data server\n.";
+      this.setState({
+        errMsg: errMsg
+      });
     };
 
     //   this.controller.onerror = e => {
@@ -72,7 +72,6 @@ class App extends Component {
       this.setState({
         videosrc: videosrc
       });
-      this.video.send("1");
     };
 
     this.video.onerror = e => {

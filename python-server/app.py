@@ -50,7 +50,6 @@ async def video():
     while True:
         data = encode(cap)
         await websocket.send(data)
-        send = await websocket.receive()
 
 
 @app.websocket('/showText')
@@ -68,7 +67,6 @@ async def update_handler():
     sense.set_imu_config(False, True, False)
     while True:
         # await websocket.receive()
-        north = sense.get_compass()
         pressure = int(sense.get_pressure())
         temp = int(sense.get_temperature())
         humidity = int(sense.get_humidity())
@@ -88,9 +86,6 @@ async def update_handler():
             "name": "humidity",
             "data": humidity
         },{
-            "name": "north",
-            "data": int(north)
-        },{
             "name": "pitch",
             "data": pitch
         },{
@@ -101,7 +96,7 @@ async def update_handler():
             "data": yaw
         }]
         await websocket.send(json.dumps(data))
-        await asyncio.sleep(0.3)
+        # await asyncio.sleep(0.3)
 
 
 if __name__ == '__main__':

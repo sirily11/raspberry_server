@@ -1,9 +1,9 @@
 version: "3"
 services:
-  react:
-    build: ./react-display
-    volumes:
-      - ./react-display/:/usr/src/server/react-display
+#  react:
+#    build: ./react-display
+#    volumes:
+#      - ./react-display/:/usr/src/server/react-display
 
   backend:
     build: ./python-server

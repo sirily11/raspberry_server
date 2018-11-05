@@ -9,6 +9,6 @@ startime = time.time()
 while True:
 
     orientation = sense.get_orientation_degrees()
-    print(orientation['yaw'])
+    print(orientation)
     time.sleep(0.3)
 
