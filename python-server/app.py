@@ -4,15 +4,56 @@ import json
 import time
 from sense_hat import SenseHat
 from math import sqrt
+from robot import Robot
+import cv2
+import numpy as np
+import base64
+import asyncio
 
 app = Quart(__name__,
             template_folder="../react-display/build",
             static_folder="../react-display/build/static")
 
 
+def encode(cap):
+    _, frame = cap.read()
+    frame = cv2.resize(frame, (int(1280/3), int(720/3)))
+    _, buffer = cv2.imencode(".jpg", frame)
+    string_data = base64.b64encode(buffer)
+    return str(string_data, encoding="utf-8")
+
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
+@app.websocket("/control")
+async def controll():
+    robot = Robot()
+    while True:
+        cont = await websocket.receive()
+        if cont == "w":
+            print("Accelerating")
+            wall = robot.accelerate()
+            await websocket.send(wall)
+        elif cont == "s":
+            robot.decelerate()
+            print("Decelerating")
+        else:
+            robot.turn(float(cont))
+            print("Turning to {}".format(float(cont)))
+            await websocket.send("ok")
+
+
+@app.websocket("/video")
+async def video():
+    cap = cv2.VideoCapture(0)
+    print("Starting the server")
+    while True:
+        data = encode(cap)
+        await websocket.send(data)
+        send = await websocket.receive()
 
 
 @app.websocket('/showText')
@@ -27,17 +68,18 @@ async def show_handler():
 @app.websocket('/update')
 async def update_handler():
     sense = SenseHat()
-    sense.clear()
+    sense.set_imu_config(False, True, False)
     while True:
-        acceleration = sense.get_accelerometer_raw()
-        pressure = round(sense.get_pressure(), 3)
-        temp = round(sense.get_temperature(), 3)
-        humidity = round(sense.get_humidity(), 3)
+        await websocket.receive()
+        north = sense.get_compass()
+        pressure = int(sense.get_pressure())
+        temp = int(sense.get_temperature())
+        humidity = int(sense.get_humidity())
+        orientation = sense.get_orientation_degrees()
 
-        x = round(acceleration['x'], 3)
-        y = round(acceleration['y'], 3)
-        z = round(acceleration['z'], 3)
-        speed = (sqrt(x**2+y**2))/2
+        pitch = int(orientation["pitch"])
+        roll = int(orientation["roll"])
+        yaw = int(orientation["yaw"])
 
         data = [{
             "name": "temperture",
@@ -48,16 +90,21 @@ async def update_handler():
         }, {
             "name": "humidity",
             "data": humidity
-        }, {
-            "name": "Acceleration",
-            "data": "X:{}\nY:{}\nZ:{}".format(x, y, z)
-        }, {
-            "name": "Speed",
-            "data": round(speed, 3)
+        },{
+            "name": "north",
+            "data": int(north)
+        },{
+            "name": "pitch",
+            "data": pitch
+        },{
+            "name": "roll",
+            "data": roll
+        },{
+            "name": "yaw",
+            "data": yaw
         }]
-        await websocket.send(json.dumps(data))
-        time.sleep(1)
+        await websocket.send(json.dumps(data))   
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", debug=True, port=5000)

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- <canvas id="image"></canvas> -->
+    <img id="cam" src="" style="width:640px;height:360px" />
+    <script>
+        let image = document.getElementById("image")
+        let ws = new WebSocket("ws://192.168.86.174:5000/video")
+        ws.onopen = () => {
+            console.log("Connected")
+        }
+        ws.onmessage = (e) => {
+            $("#cam").attr('src', 'data:image/jpg;base64,' + e.data);
+            ws.send("1")
+        }
+        ws.onclose = () => {
+            ws.send("close")
+        }
+
+    </script>
+</body>
+
+</html>
