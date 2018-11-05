@@ -36,7 +36,7 @@ class App extends Component {
     // this.showText = new WebSocket("ws://" + document.domain + ":5000/showText");
     //get the websocket data
     this.video = new WebSocket("ws://192.168.86.174:5000/video");
-    this.controller = new WebSocket("ws://192.168.86.174:5000/control");
+    // this.controller = new WebSocket("ws://192.168.86.174:5000/control");
     this.initWebsocket();
   }
 
@@ -45,27 +45,27 @@ class App extends Component {
       this.setState({ data: JSON.parse(event.data) });
     };
 
-    setInterval(this.getUpdate.bind(this), 1000);
+    // setInterval(this.getUpdate.bind(this), 1000);
 
     this.video.onerror = e => {
-      let errMsg = this.state.errMsg;
-      errMsg += "Cannot connect to the sensor data server\n.";
-      this.setState({
-        errMsg: errMsg
-      });
-
-      this.controller.onerror = e => {
-        this.setState({ connected: false });
-      };
-      this.controller.onmessage = e => {
-        console.log(e.data);
-      };
+        let errMsg = this.state.errMsg;
+        errMsg += "Cannot connect to the sensor data server\n.";
+        this.setState({
+            errMsg: errMsg
+        });
     };
 
-    this.controller.onopen = e => {
-      console.log("Open");
-      this.setState({ connected: true });
-    };
+    //   this.controller.onerror = e => {
+    //     this.setState({ connected: false });
+    //   };
+    //   this.controller.onmessage = e => {
+    //     console.log(e.data);
+    //   };
+    //
+    // this.controller.onopen = e => {
+    //   console.log("Open");
+    //   this.setState({ connected: true });
+    // };
 
     this.video.onmessage = event => {
       let videosrc = "data:image/jpg;base64," + event.data;

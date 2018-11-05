@@ -1,12 +1,9 @@
 from quart import Quart, render_template
 from quart import websocket
 import json
-import time
 from sense_hat import SenseHat
-from math import sqrt
 from robot import Robot
 import cv2
-import numpy as np
 import base64
 import asyncio
 
@@ -70,7 +67,7 @@ async def update_handler():
     sense = SenseHat()
     sense.set_imu_config(False, True, False)
     while True:
-        await websocket.receive()
+        # await websocket.receive()
         north = sense.get_compass()
         pressure = int(sense.get_pressure())
         temp = int(sense.get_temperature())
@@ -103,7 +100,8 @@ async def update_handler():
             "name": "yaw",
             "data": yaw
         }]
-        await websocket.send(json.dumps(data))   
+        await websocket.send(json.dumps(data))
+        await asyncio.sleep(0.3)
 
 
 if __name__ == '__main__':
