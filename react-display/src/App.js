@@ -6,20 +6,24 @@ import "./App.css";
 import AppBar from "@material-ui/core/AppBar";
 import Snackbar from "@material-ui/core/Snackbar";
 import WarningIcon from "@material-ui/icons/Warning";
-import Paper from "@material-ui/core/Paper";
+import SettingsIcon from "@material-ui/icons/Settings";
 import StepperInstruction from "./components/stepper";
+import Settings from "./components/settings";
+import { Icon, Toolbar } from "@material-ui/core";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
       data: [],
+      pointTo: 0,
       connected: true,
       videosrc: "",
       errMsg: "",
       hit: false,
       accelerate: false,
-      turning: false
+      turning: false,
+      showSetting: false
     };
     this.sensor = "";
     this.showText = "";
@@ -36,13 +40,15 @@ class App extends Component {
     // this.showText = new WebSocket("ws://" + document.domain + ":5000/showText");
     //get the websocket data
     this.video = new WebSocket("ws://192.168.86.174:5000/video");
-    // this.controller = new WebSocket("ws://192.168.86.174:5000/control");
+    this.controller = new WebSocket("ws://192.168.86.174:5000/control");
     this.initWebsocket();
   }
 
   initWebsocket() {
     this.sensor.onmessage = event => {
-      this.setState({ data: JSON.parse(event.data) });
+      let d = JSON.parse(event.data);
+      let pointTo = d[5].data * (Math.PI / 180);
+      this.setState({ data: JSON.parse(event.data), pointTo: pointTo });
     };
 
     // setInterval(this.getUpdate.bind(this), 1000);
@@ -55,17 +61,17 @@ class App extends Component {
       });
     };
 
-    //   this.controller.onerror = e => {
-    //     this.setState({ connected: false });
-    //   };
-    //   this.controller.onmessage = e => {
-    //     console.log(e.data);
-    //   };
-    //
-    // this.controller.onopen = e => {
-    //   console.log("Open");
-    //   this.setState({ connected: true });
-    // };
+    this.controller.onerror = e => {
+      this.setState({ connected: false });
+    };
+    this.controller.onmessage = e => {
+      console.log(e.data);
+    };
+
+    this.controller.onopen = e => {
+      console.log("Open");
+      this.setState({ connected: true });
+    };
 
     this.video.onmessage = event => {
       let videosrc = "data:image/jpg;base64," + event.data;
@@ -89,39 +95,53 @@ class App extends Component {
     this.showText.send(text);
   }
 
-  controlRobot(accel, brek, wheel) {
-    if (this.state.connected) {
-      if (accel > 22 && !this.state.accelerate) {
-        this.controller.send("w");
+  controlRobot(accel, brek, wheel, cmd = null) {
+    try {
+      if (this.state.connected) {
+        if (accel > 22 && !this.state.accelerate) {
+          this.controller.send(JSON.stringify({ moving: "w", settings: null }));
 
-        this.setState({
-          accelerate: true
-        });
-      } else if (brek > 22) {
-        this.controller.send("s");
-        this.setState({ accelerate: false });
-      } else if (wheel > 61) {
-        if (!this.state.turning) {
-          this.controller.send(15);
-          this.setState({ turning: true });
+          this.setState({
+            accelerate: true
+          });
+        } else if (brek > 22) {
+          this.controller.send(JSON.stringify({ moving: "s", settings: null }));
+          this.setState({ accelerate: false });
+        } else if (wheel > 61) {
+          if (!this.state.turning) {
+            this.controller.send(
+              JSON.stringify({ moving: "turn", turn_to: 15, settings: null })
+            );
+            this.setState({ turning: true });
+          }
+        } else if (wheel < 41) {
+          if (!this.state.turning) {
+            this.controller.send(
+              JSON.stringify({ moving: "turn", turn_to: -15, settings: null })
+            );
+            this.setState({ turning: true });
+          }
+        } else if (wheel > 41 && wheel < 50) {
+          if (this.state.turning) {
+            this.controller.send(
+              JSON.stringify({ moving: "s", settings: null })
+            );
+          }
+          this.setState({ accelerate: false, turning: false });
+        } else if (wheel > 51 && wheel < 61) {
+          if (this.state.turning) {
+            this.controller.send(
+              JSON.stringify({ moving: "s", settings: null })
+            );
+          }
+          this.setState({ accelerate: false, turning: false });
+        } else if (cmd !== null) {
+          this.controller.sned(
+            JSON.stringify({ settings: "speed", value: cmd })
+          );
         }
-      } else if (wheel < 41) {
-        if (!this.state.turning) {
-          this.controller.send(-15);
-          this.setState({ turning: true });
-        }
-      } else if (wheel > 41 && wheel < 50) {
-        if (this.state.turning) {
-          this.controller.send("s");
-        }
-        this.setState({ accelerate: false, turning: false });
-      } else if (wheel > 51 && wheel < 61) {
-        if (this.state.turning) {
-          this.controller.send("s");
-        }
-        this.setState({ accelerate: false, turning: false });
       }
-    }
+    } catch (e) {}
   }
 
   updateSnackBar(msg) {
@@ -135,7 +155,11 @@ class App extends Component {
       return (
         <div className="row">
           <div className="col-lg-9 col-xl-9">
-            <Display data={this.state.data} videosrc={this.state.videosrc} />
+            <Display
+              data={this.state.data}
+              videosrc={this.state.videosrc}
+              pointTo={this.state.pointTo}
+            />
           </div>
           <div className="col-lg-3 col-xl-3">
             <GamepadComponent
@@ -159,12 +183,32 @@ class App extends Component {
       );
     }
   }
+
   render() {
     return (
       <div>
         <AppBar position="static" style={{ background: "#1E88E5" }}>
-          <h5>App</h5>
+          <Toolbar>
+            <div className="col-11">
+              <h4>App</h4>
+            </div>
+            <div className="col-1">
+              <SettingsIcon
+                style={{ marginRight: 20 }}
+                onClick={() => {
+                  this.setState({ showSetting: true });
+                }}
+              />
+            </div>
+          </Toolbar>
         </AppBar>
+        <Settings
+          hidden={this.state.showSetting}
+          open={this.state.showSetting}
+          close={() => {
+            this.setState({ showSetting: false });
+          }}
+        />
         <div className="container-fluid" style={{ marginTop: "10px" }}>
           {this.createControlView()}
           {/*<Input updateText={this.updateTextHandler.bind(this)} />*/}

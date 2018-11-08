@@ -14,7 +14,7 @@ app = Quart(__name__,
 
 def encode(cap):
     _, frame = cap.read()
-    frame = cv2.resize(frame, (int(1280/3), int(720/3)))
+    frame = cv2.resize(frame, (int(1280/2), int(720/2)))
     _, buffer = cv2.imencode(".jpg", frame)
     string_data = base64.b64encode(buffer)
     return str(string_data, encoding="utf-8")
@@ -26,21 +26,22 @@ def home():
 
 
 @app.websocket("/control")
-async def controll():
+async def control():
     robot = Robot()
     while True:
         cont = await websocket.receive()
-        if cont == "w":
+        cont = json.loads(cont)
+        if cont['moving'] == "w":
             print("Accelerating")
-            wall = robot.accelerate()
-            await websocket.send(wall)
-        elif cont == "s":
+            robot.accelerate()
+        elif cont['moving'] == "s":
             robot.decelerate()
             print("Decelerating")
-        else:
-            robot.turn(float(cont))
-            print("Turning to {}".format(float(cont)))
-            await websocket.send("ok")
+        elif cont['moving'] == "turn":
+            robot.turn(float(cont['turn_to']))
+            print("Turning to {}".format(cont['turn_to']))
+        elif cont["settings"] == "speed":
+            robot.speed = cont["value"]
 
 
 @app.websocket("/video")
@@ -66,7 +67,6 @@ async def update_handler():
     sense = SenseHat()
     sense.set_imu_config(False, True, False)
     while True:
-        # await websocket.receive()
         pressure = int(sense.get_pressure())
         temp = int(sense.get_temperature())
         humidity = int(sense.get_humidity())

@@ -4,7 +4,7 @@ from pycreate2 import Create2
 class Robot:
     def __init__(self):
         port = "/dev/ttyUSB0"
-        self.speed = 100
+        self.speed = 200
         self.bot = Create2(port)
         self.bot.start()
         self.bot.full()
